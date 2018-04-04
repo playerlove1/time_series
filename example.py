@@ -18,10 +18,11 @@ def parser(x):
     return pd.datetime.strptime('199'+str(x), '%Y-%m')
 
 
-#取得MA後的結果
-def get_ma_list(q,list):
+#取得MA後的結果(前後有幾個NA版)
+def get_ma_list1(q,list):
     #前後有幾個NA
     na_num=int((q-1)/2)
+
     #實際ma_list有值的長度
     ma_num=len(list)-2*na_num    
     ma_list = []
@@ -34,6 +35,27 @@ def get_ma_list(q,list):
         ma_list.append(np.nan)
         na_num-=1
     return ma_list
+
+    
+#取得MA後的結果(前面有幾個NA版)
+def get_ma_list(q,list):
+    #前有幾個NA
+    na_num=q
+    #實際ma_list有值的長度
+    
+    ma_num=len(list)-na_num
+    ma_list = []
+    #計算移動平均
+    for i in range(0,ma_num):
+        ma_list.append(np.mean(list[i:i+q]))
+    #前後補上NA
+    while na_num >0:
+        ma_list.insert(0,np.nan)
+        na_num-=1
+        
+    return ma_list
+    
+    
     
 #找到最適合差分的階數 (只找前8階)  階數最小且滿足ADF檢定p -value 小於0.05的
 def best_diff(df, maxdiff = 8):
@@ -97,7 +119,7 @@ plt.show()
 #Moving average fitting result (ref1:http://www.mcu.edu.tw/department/management/stat/ch_web/etea/Statistics-3-net/chap32time2.pdf)
 
 #移動平均的參數q
-ma_q=3
+ma_q=2
 #利用自定義函式 取得移動平均的預測線
 ma_list = get_ma_list(ma_q,data_df.values)
 #作圖
